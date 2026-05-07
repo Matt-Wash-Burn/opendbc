@@ -1,12 +1,19 @@
 #pragma once
 
 extern const uint16_t FLAG_VOLKSWAGEN_LONG_CONTROL;
+extern const uint16_t FLAG_VOLKSWAGEN_ALT_CRC_VARIANT_1;
+extern const uint16_t FLAG_VOLKSWAGEN_DISABLE_RADAR;
 const uint16_t FLAG_VOLKSWAGEN_LONG_CONTROL = 1;
+const uint16_t FLAG_VOLKSWAGEN_ALT_CRC_VARIANT_1 = 2;
+const uint16_t FLAG_VOLKSWAGEN_DISABLE_RADAR = 8;
 
 static uint8_t volkswagen_crc8_lut_8h2f[256]; // Static lookup table for CRC8 poly 0x2F, aka 8H2F/AUTOSAR
 
 extern bool volkswagen_longitudinal;
 bool volkswagen_longitudinal = false;
+
+extern bool volkswagen_disable_radar;
+bool volkswagen_disable_radar = false;
 
 extern bool volkswagen_set_button_prev;
 bool volkswagen_set_button_prev = false;
@@ -18,6 +25,9 @@ extern bool volkswagen_brake_pedal_switch;
 extern bool volkswagen_brake_pressure_detected;
 bool volkswagen_brake_pedal_switch = false;
 bool volkswagen_brake_pressure_detected = false;
+
+extern bool volkswagen_alt_crc_variant_1;
+bool volkswagen_alt_crc_variant_1 = false;
 
 #define MSG_LH_EPS_03        0x09FU   // RX from EPS, for driver steering torque
 #define MSG_ESP_19           0x0B2U   // RX from ABS, for wheel speeds
