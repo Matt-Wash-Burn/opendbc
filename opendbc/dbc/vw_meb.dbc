@@ -452,32 +452,32 @@ BO_ 588 MEB_Side_Assist_01: 16 XXX
 BO_ 589 MEB_Side_Assist_02: 64 XXX
  SG_ Right_01_ObjectID : 128|8@1+ (1,0) [0|255] "Unit_ObjectID" XXX
  SG_ Right_01_Status : 136|8@1+ (1,0) [0|255] "" XXX
- SG_ Right_01_Long_Distance : 152|8@1+ (0.07,-6) [-6|11.85] "Unit_Meter" XXX
+ SG_ Right_01_Long_Distance : 152|8@1+ (-0.07,6) [-11.85|6] "Unit_Meter" XXX
  SG_ Right_01_Zone : 164|4@1+ (1,0) [0|15] "" XXX
  SG_ Right_01_Lat_Distance : 184|8@1+ (0.05,-6.4) [-6.4|6.35] "Unit_Meter" XXX
  SG_ Right_02_ObjectID : 192|8@1+ (1,0) [0|255] "Unit_ObjectID" XXX
  SG_ Right_02_Status : 200|8@1+ (1,0) [0|255] "" XXX
- SG_ Right_02_Long_Distance : 216|8@1+ (0.07,-6) [-6|11.85] "Unit_Meter" XXX
+ SG_ Right_02_Long_Distance : 216|8@1+ (-0.07,6) [-11.85|6] "Unit_Meter" XXX
  SG_ Right_02_Zone : 228|4@1+ (1,0) [0|15] "" XXX
  SG_ Right_02_Lat_Distance : 248|8@1+ (0.05,-6.4) [-6.4|6.35] "Unit_Meter" XXX
  SG_ Center_01_ObjectID : 256|8@1+ (1,0) [0|255] "Unit_ObjectID" XXX
  SG_ Center_01_Status : 264|8@1+ (1,0) [0|255] "" XXX
- SG_ Center_01_Long_Distance : 280|8@1+ (0.07,-6) [-6|11.85] "Unit_Meter" XXX
+ SG_ Center_01_Long_Distance : 280|8@1+ (-0.07,6) [-11.85|6] "Unit_Meter" XXX
  SG_ Center_01_Zone : 292|4@1+ (1,0) [0|15] "" XXX
  SG_ Center_01_Lat_Distance : 312|8@1+ (0.05,-6.4) [-6.4|6.35] "Unit_Meter" XXX
  SG_ Center_02_ObjectID : 320|8@1+ (1,0) [0|255] "Unit_ObjectID" XXX
  SG_ Center_02_Status : 328|8@1+ (1,0) [0|255] "" XXX
- SG_ Center_02_Long_Distance : 344|8@1+ (0.07,-6) [-6|11.85] "Unit_Meter" XXX
+ SG_ Center_02_Long_Distance : 344|8@1+ (-0.07,6) [-11.85|6] "Unit_Meter" XXX
  SG_ Center_02_Zone : 356|4@1+ (1,0) [0|15] "" XXX
  SG_ Center_02_Lat_Distance : 376|8@1+ (0.05,-6.4) [-6.4|6.35] "Unit_Meter" XXX
  SG_ Left_01_ObjectID : 384|8@1+ (1,0) [0|255] "Unit_ObjectID" XXX
  SG_ Left_01_Status : 392|8@1+ (1,0) [0|255] "" XXX
- SG_ Left_01_Long_Distance : 408|8@1+ (0.07,-6) [-6|11.85] "Unit_Meter" XXX
+ SG_ Left_01_Long_Distance : 408|8@1+ (-0.07,6) [-11.85|6] "Unit_Meter" XXX
  SG_ Left_01_Zone : 420|4@1+ (1,0) [0|15] "" XXX
  SG_ Left_01_Lat_Distance : 440|8@1+ (0.05,-6.4) [-6.4|6.35] "Unit_Meter" XXX
  SG_ Left_02_ObjectID : 448|8@1+ (1,0) [0|255] "Unit_ObjectID" XXX
  SG_ Left_02_Status : 456|8@1+ (1,0) [0|255] "" XXX
- SG_ Left_02_Long_Distance : 472|8@1+ (0.07,-6) [-6|11.85] "Unit_Meter" XXX
+ SG_ Left_02_Long_Distance : 472|8@1+ (-0.07,6) [-11.85|6] "Unit_Meter" XXX
  SG_ Left_02_Zone : 484|4@1+ (1,0) [0|15] "" XXX
  SG_ Left_02_Lat_Distance : 504|8@1+ (0.05,-6.4) [-6.4|6.35] "Unit_Meter" XXX
 

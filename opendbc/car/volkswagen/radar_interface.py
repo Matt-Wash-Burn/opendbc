@@ -18,15 +18,12 @@ SIDE_STATUS_GHOST = 0x00   # placeholder slot, no live measurement
 SIDE_STATUS_EMPTY = 0xff   # slot unused this frame
 
 # Coordinate-frame translation for side radar.
-# ID.4 length = 4.58 m. The two corner radars (SWA modules) are mounted at the
-# rear corners and report:
-#   - Long_Distance: positive forward from the rear-corner mount
-#   - Lat_Distance:  positive to the RIGHT of ego centerline
-# Front radar (Strukturen_01) reports dRel from the front bumper with +y=LEFT
-# (openpilot convention). To expose side-radar tracks in the SAME frame as
-# front radar so the two can be fused, we shift dRel by -EGO_LENGTH (rear ->
-# front-bumper origin) and negate yRel (flip +y=RIGHT -> +y=LEFT).
-EGO_LENGTH = 4.58
+# Empirically validated against matched front+side detections of the same
+# object: side-radar Long_Distance shares the front-radar reference frame
+# (front bumper, +x forward) — mean dRel diff between the two sources is
+# +0.28 m, well within sensor noise. So no longitudinal shift is needed.
+# Side radar's Lat_Distance, however, uses +y=RIGHT while openpilot uses
+# +y=LEFT, so we negate it to expose tracks in the same frame as front radar.
 
 LANE_TYPES = ("Same_Lane", "Left_Lane", "Right_Lane")
 FRONT_SIGNAL_SETS = tuple(
@@ -187,9 +184,9 @@ class RadarInterface(RadarInterfaceBase):
         continue
       seen_ids.add(obj_id)
 
-      # Raw values are in the corner-radar frame; translate to ego frame
-      # (front-bumper origin, +y=LEFT) to match Strukturen_01 / openpilot.
-      d_rel = float(side_get(long_sig)) - EGO_LENGTH
+      # Long_Distance is already in front-bumper frame (matches Strukturen_01).
+      # Lat_Distance uses +y=RIGHT in the radar; flip to openpilot's +y=LEFT.
+      d_rel = float(side_get(long_sig))
       y_rel = -float(side_get(lat_sig))
       zone = int(side_get(zone_sig))
 
