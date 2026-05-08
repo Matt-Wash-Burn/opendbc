@@ -10,7 +10,10 @@ from opendbc.car.volkswagen.values import CanBus, CarControllerParams, Volkswage
 from opendbc.car.volkswagen.mebutils import LongControlJerk, LongControlLimit, map_speed_to_acc_tempolimit, LatControlCurvature
 
 VisualAlert = structs.CarControl.HUDControl.VisualAlert
+AudibleAlert = structs.CarControl.HUDControl.AudibleAlert
 LongCtrlState = structs.CarControl.Actuators.LongControlState
+
+EA_RELEASE_ALERTS = (AudibleAlert.promptDistracted, AudibleAlert.warningImmediate)
 
 
 class HCAMitigation:
@@ -154,8 +157,10 @@ class CarController(CarControllerBase):
       # (also stock long does resume from stop as long as hands on is detected additionally to OP resume spam)
       klr_send_ready = CS.klr_stock_values["COUNTER"] != self.klr_counter_last
       if klr_send_ready:
-        can_sends.append(mebcan.create_capacitive_wheel_touch(self.packer_pt, self.CAN.cam, CC.latActive, CS.klr_stock_values))
-        can_sends.append(mebcan.create_capacitive_wheel_touch(self.packer_pt, self.CAN.pt, CC.latActive, CS.klr_stock_values))
+        # release EA when openpilot warns the driver, so stock EA can escalate (jerk brake, SOS)
+        pacify_ea = CC.latActive and hud_control.audibleAlert not in EA_RELEASE_ALERTS
+        can_sends.append(mebcan.create_capacitive_wheel_touch(self.packer_pt, self.CAN.cam, pacify_ea, CS.klr_stock_values))
+        can_sends.append(mebcan.create_capacitive_wheel_touch(self.packer_pt, self.CAN.pt, pacify_ea, CS.klr_stock_values))
       self.klr_counter_last = CS.klr_stock_values["COUNTER"]
 
     # **** Blinker Controls ************************************************** #
