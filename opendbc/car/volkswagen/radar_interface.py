@@ -18,12 +18,18 @@ SIDE_STATUS_GHOST = 0x00   # placeholder slot, no live measurement
 SIDE_STATUS_EMPTY = 0xff   # slot unused this frame
 
 # Coordinate-frame translation for side radar.
-# Empirically validated against matched front+side detections of the same
-# object: side-radar Long_Distance shares the front-radar reference frame
-# (front bumper, +x forward) — mean dRel diff between the two sources is
-# +0.28 m, well within sensor noise. So no longitudinal shift is needed.
-# Side radar's Lat_Distance, however, uses +y=RIGHT while openpilot uses
-# +y=LEFT, so we negate it to expose tracks in the same frame as front radar.
+# Long_Distance shares the front-radar reference frame (front bumper,
+# +x = ahead) after the DBC scaling fix — no longitudinal shift needed.
+# Lat_Distance is reported outward from each corner-radar mount, not from
+# ego centerline (Right zone has only positive values, Left only negative).
+# Each MEB_Side_Assist_02 zone tag identifies which corner sourced the track,
+# so we add the corner mount's lateral offset (+y = RIGHT in radar frame)
+# and then negate to land in openpilot's +y = LEFT convention.
+SIDE_CORNER_X = {  # corner-radar mount lateral offset in side-radar (+y=RIGHT) frame
+  1: -0.92,  # Left  zone: left corner at -0.92 m from ego center
+  2:  0.0,   # Center zone: near centerline
+  3: +0.92,  # Right zone: right corner at +0.92 m from ego center
+}
 
 LANE_TYPES = ("Same_Lane", "Left_Lane", "Right_Lane")
 FRONT_SIGNAL_SETS = tuple(
@@ -184,11 +190,13 @@ class RadarInterface(RadarInterfaceBase):
         continue
       seen_ids.add(obj_id)
 
-      # Long_Distance is already in front-bumper frame (matches Strukturen_01).
-      # Lat_Distance uses +y=RIGHT in the radar; flip to openpilot's +y=LEFT.
+      # Long_Distance: front-bumper frame, +x=ahead (matches Strukturen_01).
+      # Lat_Distance: outward from corner-radar mount in +y=RIGHT frame —
+      # add the corner offset to get ego-centerline frame, then negate to
+      # land in openpilot's +y=LEFT convention.
       d_rel = float(side_get(long_sig))
-      y_rel = -float(side_get(lat_sig))
       zone = int(side_get(zone_sig))
+      y_rel = -(float(side_get(lat_sig)) + SIDE_CORNER_X.get(zone, 0.0))
 
       prev_d = self._side_prev_d_rel.get(obj_id)
       v_rel = (d_rel - prev_d) * RADAR_RATE_HZ if prev_d is not None else 0.0
