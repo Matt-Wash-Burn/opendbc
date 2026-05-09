@@ -53,28 +53,6 @@ def create_eps_update(packer, bus, eps_stock_values, ea_simulated_torque):
   return packer.make_can_msg("LH_EPS_03", bus, values)
 
 
-# EA_01 enum values from vw_meb.dbc VAL_ tables (BO_ 420)
-EA_FUNK_PHASE1_AKTIV = 4   # warning phase
-EA_FUNK_PHASE3_AKTIV = 6   # full emergency phase
-EA_RUCKPROFIL_MAX    = 7   # strongest jerk profile
-EA_HMS_HALTEN        = 1   # hold request
-
-
-def create_emergency_assist_request(packer, bus, ea_control_stock_values, accel):
-  values = {s: ea_control_stock_values[s] for s in [
-    "EA_Parken_beibehalten_HMS",
-    "EA_eCall_Anf",
-    "EA_Gurtstraffer_Anf",
-  ]}
-  values.update({
-    "EA_Funktionsstatus":    EA_FUNK_PHASE3_AKTIV,
-    "EA_Warnruckprofil":     EA_RUCKPROFIL_MAX,
-    "EA_Sollbeschleunigung": accel,
-    "EA_Anforderung_HMS":    EA_HMS_HALTEN,
-  })
-  return packer.make_can_msg("EA_01", bus, values)
-
-
 def create_blinker_control(packer, bus, ea_hud_stock_values, ea_control_stock_values, left_blinker, right_blinker, hide_error):
   values = {s: ea_hud_stock_values[s] for s in [
     "EA_Texte",
