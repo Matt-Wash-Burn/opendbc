@@ -175,6 +175,10 @@ class CarController(CarControllerBase):
         right_blinker = CC.rightBlinker if not blinker_active else False
         can_sends.append(mebcan.create_blinker_control(self.packer_pt, self.CAN.pt, CS.ea_hud_stock_values, CS.ea_control_stock_values, left_blinker, right_blinker, self.hide_ea_error))
 
+        # spoof stock EA hard-brake escalation when openpilot's DM raises yellow
+        if hud_control.audibleAlert == AudibleAlert.promptDistracted:
+          can_sends.append(mebcan.create_emergency_assist_request(self.packer_pt, self.CAN.pt, CS.ea_control_stock_values, accel=-5.0))
+
     # **** Acceleration Controls ******************************************** #
 
     if self.frame % self.CCP.ACC_CONTROL_STEP == 0 and self.CP.openpilotLongitudinalControl and not CS.radar_disable_failed:
