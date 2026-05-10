@@ -147,6 +147,9 @@ class HyundaiFlags(IntFlag):
 
   ALT_LIMITS_2 = 2 ** 26
 
+  # Cruise/main/LDA button messages live on ACAN instead of the usual ECAN CRUISE_BUTTONS message
+  CANFD_ALT_BUTTONS_ACAN = 2 ** 27
+
 
 @dataclass
 class HyundaiCarDocs(CarDocs):
@@ -347,6 +350,7 @@ class CAR(Platforms):
   HYUNDAI_PALISADE_HEV = HyundaiCanFDPlatformConfig(
     [HyundaiCarDocs("Hyundai Palisade Hybrid 2026", "All", car_parts=CarParts.common([CarHarness.hyundai_n]))],
     CarSpecs(mass=2165, wheelbase=2.97, steerRatio=15.0 * 1.15, tireStiffnessFactor=0.63),
+    flags=HyundaiFlags.CANFD_ALT_BUTTONS_ACAN,
   )
   HYUNDAI_VELOSTER = HyundaiPlatformConfig(
     [HyundaiCarDocs("Hyundai Veloster 2019-20", min_enable_speed=5. * CV.MPH_TO_MS, car_parts=CarParts.common([CarHarness.hyundai_e]))],
