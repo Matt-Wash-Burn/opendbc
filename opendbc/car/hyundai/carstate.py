@@ -20,13 +20,6 @@ ENABLE_BUTTONS = (Buttons.RES_ACCEL, Buttons.SET_DECEL, Buttons.CANCEL)
 BUTTONS_DICT = {Buttons.RES_ACCEL: ButtonType.accelCruise, Buttons.SET_DECEL: ButtonType.decelCruise,
                 Buttons.GAP_DIST: ButtonType.gapAdjustCruise, Buttons.CANCEL: ButtonType.cancel}
 
-# CANFD_ALT_BUTTONS_ACAN cars (e.g. Palisade HEV) decode buttons from three ACAN messages.
-ACAN_RES_ACCEL = 0x20
-ACAN_SET_DECEL = 0xd0
-ACAN_MAIN_BTN = 0x20
-ACAN_LDA_BTN = 0x48
-ACAN_GAP_BUTTON_STATES = ((0x80, 0xff), (0xc0, 0xff), (0x40, 0x00))
-
 
 class CarState(CarStateBase):
   def __init__(self, CP):
@@ -214,7 +207,6 @@ class CarState(CarStateBase):
   def update_canfd(self, can_parsers) -> structs.CarState:
     cp = can_parsers[Bus.pt]
     cp_cam = can_parsers[Bus.cam]
-    cp_acan = can_parsers.get(Bus.alt)
 
     ret = structs.CarState()
 
@@ -285,25 +277,9 @@ class CarState(CarStateBase):
     prev_cruise_buttons = self.cruise_buttons[-1]
     prev_main_buttons = self.main_buttons[-1]
     prev_lda_button = self.lda_button
-    if self.CP.flags & HyundaiFlags.CANFD_ALT_BUTTONS_ACAN and cp_acan is not None:
-      # Buttons live on ACAN messages instead of the usual CRUISE_BUTTONS / CRUISE_BUTTONS_ALT on ECAN
-      cruise_button = Buttons.NONE
-      btn_3d4 = cp_acan.vl["CRUISE_BUTTONS_ACAN_0x3d4"]["SET_RES_BTN"]
-      btn_3a6 = (cp_acan.vl["CRUISE_BUTTONS_ACAN_0x3a6"]["GAP_BTN_1"], cp_acan.vl["CRUISE_BUTTONS_ACAN_0x3a6"]["GAP_BTN_2"])
-      btn_2f0 = cp_acan.vl["CRUISE_BUTTONS_ACAN_0x2f0"]["MAIN_LDA_BTN"]
-      if btn_3d4 == ACAN_RES_ACCEL:
-        cruise_button = Buttons.RES_ACCEL
-      elif btn_3d4 == ACAN_SET_DECEL:
-        cruise_button = Buttons.SET_DECEL
-      elif btn_3a6 in ACAN_GAP_BUTTON_STATES:
-        cruise_button = Buttons.GAP_DIST
-      self.cruise_buttons.append(cruise_button)
-      self.main_buttons.append(1 if btn_2f0 == ACAN_MAIN_BTN else 0)
-      self.lda_button = 1 if btn_2f0 == ACAN_LDA_BTN else 0
-    else:
-      self.cruise_buttons.extend(cp.vl_all[self.cruise_btns_msg_canfd]["CRUISE_BUTTONS"])
-      self.main_buttons.extend(cp.vl_all[self.cruise_btns_msg_canfd]["ADAPTIVE_CRUISE_MAIN_BTN"])
-      self.lda_button = cp.vl[self.cruise_btns_msg_canfd]["LDA_BTN"]
+    self.cruise_buttons.extend(cp.vl_all[self.cruise_btns_msg_canfd]["CRUISE_BUTTONS"])
+    self.main_buttons.extend(cp.vl_all[self.cruise_btns_msg_canfd]["ADAPTIVE_CRUISE_MAIN_BTN"])
+    self.lda_button = cp.vl[self.cruise_btns_msg_canfd]["LDA_BTN"]
     self.buttons_counter = cp.vl[self.cruise_btns_msg_canfd]["COUNTER"]
     ret.accFaulted = cp.vl["TCS"]["ACCEnable"] != 0  # 0 ACC CONTROL ENABLED, 1-3 ACC CONTROL DISABLED
 
@@ -327,17 +303,10 @@ class CarState(CarStateBase):
         # this message is 50Hz but the ECU frequently stops transmitting for ~0.5s
         ("CRUISE_BUTTONS", 1)
       ]
-    parsers = {
+    return {
       Bus.pt: CANParser(DBC[CP.carFingerprint][Bus.pt], msgs, CanBus(CP).ECAN),
       Bus.cam: CANParser(DBC[CP.carFingerprint][Bus.pt], [], CanBus(CP).CAM),
     }
-    if CP.flags & HyundaiFlags.CANFD_ALT_BUTTONS_ACAN:
-      parsers[Bus.alt] = CANParser(DBC[CP.carFingerprint][Bus.pt], [
-        ("CRUISE_BUTTONS_ACAN_0x2f0", math.nan),
-        ("CRUISE_BUTTONS_ACAN_0x3a6", math.nan),
-        ("CRUISE_BUTTONS_ACAN_0x3d4", math.nan),
-      ], CanBus(CP).ACAN)
-    return parsers
 
   def get_can_parsers(self, CP):
     if CP.flags & HyundaiFlags.CANFD:
