@@ -1338,13 +1338,6 @@ BO_ 273 TCU11: 8 TCU
  SG_ CF_Tcu_Alive1 : 58|2@1+ (1.0,0.0) [0.0|3.0] ""  EMS,IBOX
  SG_ CF_Tcu_ChkSum1 : 60|4@1+ (1.0,0.0) [0.0|15.0] ""  EMS,IBOX
 
-BO_ 267 CRUISE_BUTTONS_ALT_0X10B: 16 XXX
- SG_ RES_INC_SPEED_BTN : 80|1@0+ (1,0) [0|1] "" XXX
- SG_ SET_DEC_SPEED_BTN : 81|1@0+ (1,0) [0|1] "" XXX
- SG_ ACC_PAUSE_RES_BTN : 82|1@0+ (1,0) [0|1] "" XXX
- SG_ ACC_BTN : 85|1@0+ (1,0) [0|1] "" XXX
- SG_ LFA_BTN : 87|1@0+ (1,0) [0|1] "" XXX
-
 BO_ 16 ACU13: 8 ACU
  SG_ CF_Acu_CshAct : 0|1@1+ (1.0,0.0) [0.0|1.0] ""  CUBIS,IBOX,ODS
 
