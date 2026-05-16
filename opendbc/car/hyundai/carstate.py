@@ -333,11 +333,14 @@ class CarState(CarStateBase, EsccCarStateBase, MadsCarState, CarStateExt):
   def get_can_parsers_canfd(self, CP):
     msgs = []
     if not (CP.flags & HyundaiFlags.CANFD_ALT_BUTTONS):
-      # TODO: this can be removed once we add dynamic support to vl_all
-      msgs += [
-        # this message is 50Hz but the ECU frequently stops transmitting for ~0.5s
-        ("CRUISE_BUTTONS", 1)
-      ]
+      # LX3 transmits CRUISE_BUTTONS at <1Hz (gaps >1s); skip freq check for that car.
+      # carstate still reads buttons via cruise_btns_msg_canfd = "CRUISE_BUTTONS".
+      if CP.carFingerprint != CAR.HYUNDAI_PALISADE_HEV_LX3:
+        # TODO: this can be removed once we add dynamic support to vl_all
+        msgs += [
+          # this message is 50Hz but the ECU frequently stops transmitting for ~0.5s
+          ("CRUISE_BUTTONS", 1)
+        ]
     return {
       Bus.pt: CANParser(DBC[CP.carFingerprint][Bus.pt], msgs, CanBus(CP).ECAN),
       Bus.cam: CANParser(DBC[CP.carFingerprint][Bus.pt], [], CanBus(CP).CAM),
