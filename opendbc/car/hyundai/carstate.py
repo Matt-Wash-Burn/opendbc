@@ -223,21 +223,6 @@ class CarState(CarStateBase, EsccCarStateBase, MadsCarState, CarStateExt):
     return ret, ret_sp
 
   def update_canfd(self, can_parsers) -> tuple[structs.CarState, structs.CarStateSP]:
-    if not hasattr(self, '_lx3_dump_logged'):
-      self._lx3_dump_logged = True
-      try:
-        cp = can_parsers[Bus.pt]
-        with open('/data/lx3_carstate_dump.log', 'w') as ff:
-          ff.write(f"pt parser: bus={cp.bus} can_valid={cp.can_valid} bus_timeout={cp.bus_timeout} can_invalid_cnt={cp.can_invalid_cnt}\n")
-          ff.write(f"message_states count: {len(cp.message_states)}\n")
-          for addr, ms in sorted(cp.message_states.items()):
-            attrs = {a: getattr(ms, a, '?') for a in dir(ms) if not a.startswith('_') and not callable(getattr(ms, a, None))}
-            ff.write(f"  0x{addr:03x}: {attrs}\n")
-      except Exception as e:
-        with open('/data/lx3_carstate_dump.log', 'w') as ff:
-          ff.write(f"ERR: {e}\n")
-    # lx3_carstate_dump
-
     cp = can_parsers[Bus.pt]
     cp_cam = can_parsers[Bus.cam]
 
