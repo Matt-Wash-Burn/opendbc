@@ -223,6 +223,21 @@ class CarState(CarStateBase, EsccCarStateBase, MadsCarState, CarStateExt):
     return ret, ret_sp
 
   def update_canfd(self, can_parsers) -> tuple[structs.CarState, structs.CarStateSP]:
+    if not hasattr(self, '_lx3_dump_logged'):
+      self._lx3_dump_logged = True
+      try:
+        cp = can_parsers[Bus.pt]
+        with open('/data/lx3_carstate_dump.log', 'w') as ff:
+          ff.write(f"pt parser: bus={cp.bus} can_valid={cp.can_valid} bus_timeout={cp.bus_timeout} can_invalid_cnt={cp.can_invalid_cnt}\n")
+          ff.write(f"message_states count: {len(cp.message_states)}\n")
+          for addr, ms in sorted(cp.message_states.items()):
+            attrs = {a: getattr(ms, a, '?') for a in dir(ms) if not a.startswith('_') and not callable(getattr(ms, a, None))}
+            ff.write(f"  0x{addr:03x}: {attrs}\n")
+      except Exception as e:
+        with open('/data/lx3_carstate_dump.log', 'w') as ff:
+          ff.write(f"ERR: {e}\n")
+    # lx3_carstate_dump
+
     cp = can_parsers[Bus.pt]
     cp_cam = can_parsers[Bus.cam]
 
@@ -239,8 +254,13 @@ class CarState(CarStateBase, EsccCarStateBase, MadsCarState, CarStateExt):
 
     ret.brakePressed = cp.vl["TCS"]["DriverBraking"] == 1
 
-    ret.doorOpen = cp.vl["DOORS_SEATBELTS"]["DRIVER_DOOR"] == 1
-    ret.seatbeltUnlatched = cp.vl["DOORS_SEATBELTS"]["DRIVER_SEATBELT"] == 0
+    if self.CP.carFingerprint == CAR.HYUNDAI_PALISADE_HEV_LX3:
+      # LX3 does not transmit DOORS_SEATBELTS (0x411) - skip these reads
+      ret.doorOpen = False
+      ret.seatbeltUnlatched = False
+    else:
+      ret.doorOpen = cp.vl["DOORS_SEATBELTS"]["DRIVER_DOOR"] == 1
+      ret.seatbeltUnlatched = cp.vl["DOORS_SEATBELTS"]["DRIVER_SEATBELT"] == 0
 
     gear = cp.vl[self.gear_msg_canfd]["GEAR"]
     ret.gearShifter = self.parse_gear_shifter(self.shifter_values.get(gear))
@@ -262,7 +282,9 @@ class CarState(CarStateBase, EsccCarStateBase, MadsCarState, CarStateExt):
     ret.steerFaultTemporary = cp.vl["MDPS"]["MDPS_LkaFailSta"] != 0
     if self.is_canfd_angle_steering:
       ret.steerFaultTemporary = ret.steerFaultTemporary or cp.vl["MDPS"]["MDPS_ADAS_AciFltSig_Lv2"] != 0
-      self.hands_on_steering_grip = cp.vl["HOD_FD_01_100ms"]["HOD_Dir_Status"]
+      # LX3 doesn't transmit HOD_FD_01_100ms (0x2af) - skip hands-on detection via this message
+      if self.CP.carFingerprint != CAR.HYUNDAI_PALISADE_HEV_LX3:
+        self.hands_on_steering_grip = cp.vl["HOD_FD_01_100ms"]["HOD_Dir_Status"]
       torque_overriding = abs(ret.steeringTorque) > self.params.STEER_THRESHOLD
       ret.steeringPressed = self.update_steering_pressed(torque_overriding, 5)
       self.imu_lateral_acceleration = cp.vl["IMU_01_10ms"]["IMU_LatAccelVal"] * 9.81  # m/s^2
@@ -275,11 +297,20 @@ class CarState(CarStateBase, EsccCarStateBase, MadsCarState, CarStateExt):
       if not self.CP.flags & HyundaiFlags.CANFD_LKA_STEER_MSG:
         self.msg_161, self.msg_162, self.msg_1b5 = map(copy.copy, (cp_cam.vl["CCNC_0x161"], cp_cam.vl["CCNC_0x162"], cp_cam.vl["FR_CMR_03_50ms"]))
         self.cruise_info = copy.copy((cp_cam if self.CP.flags & HyundaiFlags.CANFD_CAMERA_SCC else cp).vl["SCC_CONTROL"])
-    ret.leftBlinker, ret.rightBlinker = self.update_blinker_from_lamp(50, cp.vl["BLINKERS"][f"LEFT_LAMP{alt}"],
-                                                                      cp.vl["BLINKERS"][f"RIGHT_LAMP{alt}"])
+    if self.CP.carFingerprint == CAR.HYUNDAI_PALISADE_HEV_LX3:
+      # LX3 does not transmit BLINKERS (0x413) - blinker state unavailable
+      ret.leftBlinker, ret.rightBlinker = False, False
+    else:
+      ret.leftBlinker, ret.rightBlinker = self.update_blinker_from_lamp(50, cp.vl["BLINKERS"][f"LEFT_LAMP{alt}"],
+                                                                        cp.vl["BLINKERS"][f"RIGHT_LAMP{alt}"])
     if self.CP.enableBsm:
-      ret.leftBlindspot = bool(cp.vl["ADAS_CMD_50_50ms"]["BCW_LtIndSta"])
-      ret.rightBlindspot = bool(cp.vl["ADAS_CMD_50_50ms"]["BCW_RtIndSta"])
+      if self.CP.carFingerprint == CAR.HYUNDAI_PALISADE_HEV_LX3:
+        # LX3 does not transmit ADAS_CMD_50_50ms (0x1ba) at expected position
+        ret.leftBlindspot = False
+        ret.rightBlindspot = False
+      else:
+        ret.leftBlindspot = bool(cp.vl["ADAS_CMD_50_50ms"]["BCW_LtIndSta"])
+        ret.rightBlindspot = bool(cp.vl["ADAS_CMD_50_50ms"]["BCW_RtIndSta"])
 
     # cruise state
     # CAN FD cars enable on main button press, set available if no TCS faults preventing engagement
@@ -331,32 +362,47 @@ class CarState(CarStateBase, EsccCarStateBase, MadsCarState, CarStateExt):
     return ret, ret_sp
 
   def get_can_parsers_canfd(self, CP):
-    # LX3: register messages carstate reads via cp.vl[] so they get
-    # proper frequency checks (otherwise lazy-registered with no freq, fails immediately)
+    # LX3: pre-register messages carstate reads via cp.vl[] with frequencies.
+    # Otherwise cp.vl[] lazy-registers them without freq info, causing immediate "not valid".
     msgs = [
       ("WHEEL_SPEEDS", 100),
       ("MDPS", 100),
       ("TCS", 50),
-      ("GEAR_SHIFTER", 100),
-      ("DOORS_SEATBELTS", 4),
-      ("BLINKERS", 50),
+      ("STEERING_SENSORS", 100),
+      ("IMU_01_10ms", 100),
+      ("CRUISE_BUTTONS_ALT", 50),
     ]
     if CP.flags & HyundaiFlags.HYBRID:
       msgs.append(("ACCELERATOR_ALT", 100))
-    if CP.flags & HyundaiFlags.CANFD_ANGLE_STEERING:
-      msgs.append(("HOD_FD_01_100ms", 10))
+    msgs.append(("GEAR_SHIFTER", 50))
     if not (CP.flags & HyundaiFlags.CANFD_ALT_BUTTONS):
-      # LX3 transmits CRUISE_BUTTONS at <1Hz (gaps >1s); skip freq check for that car.
-      # carstate still reads buttons via cruise_btns_msg_canfd = "CRUISE_BUTTONS".
       if CP.carFingerprint != CAR.HYUNDAI_PALISADE_HEV_LX3:
-        # TODO: this can be removed once we add dynamic support to vl_all
-        msgs += [
-          # this message is 50Hz but the ECU frequently stops transmitting for ~0.5s
-          ("CRUISE_BUTTONS", 1)
-        ]
+        msgs += [("CRUISE_BUTTONS", 1)]
+
+    # cam_parser: also pre-register messages read via cp_cam.vl[]
+    cam_msgs = []
+    if CP.flags & HyundaiFlags.CCNC:
+      cam_msgs += [
+        ("CCNC_0x161", 20),
+        ("CCNC_0x162", 20),
+        ("FR_CMR_03_50ms", 20),
+      ]
+    if CP.flags & HyundaiFlags.CANFD_CAMERA_SCC:
+      cam_msgs.append(("SCC_CONTROL", 50))
+
+    pt_parser = CANParser(DBC[CP.carFingerprint][Bus.pt], msgs, CanBus(CP).ECAN)
+    cam_parser = CANParser(DBC[CP.carFingerprint][Bus.pt], cam_msgs, CanBus(CP).CAM)
+
+    # LX3: 0x105 ACCELERATOR_ALT and 0x130 GEAR_SHIFTER have counter delta=2 per frame.
+    # Bypass counter validation on these messages.
+    if CP.carFingerprint == CAR.HYUNDAI_PALISADE_HEV_LX3:
+      if CP.flags & HyundaiFlags.HYBRID:
+        pt_parser.message_states[0x105].ignore_counter = True
+      pt_parser.message_states[0x130].ignore_counter = True
+
     return {
-      Bus.pt: CANParser(DBC[CP.carFingerprint][Bus.pt], msgs, CanBus(CP).ECAN),
-      Bus.cam: CANParser(DBC[CP.carFingerprint][Bus.pt], [], CanBus(CP).CAM),
+      Bus.pt: pt_parser,
+      Bus.cam: cam_parser,
     }
 
   def get_can_parsers(self, CP, CP_SP):
