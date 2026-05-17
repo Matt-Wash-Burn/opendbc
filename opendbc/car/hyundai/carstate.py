@@ -331,7 +331,20 @@ class CarState(CarStateBase, EsccCarStateBase, MadsCarState, CarStateExt):
     return ret, ret_sp
 
   def get_can_parsers_canfd(self, CP):
-    msgs = []
+    # LX3: register messages carstate reads via cp.vl[] so they get
+    # proper frequency checks (otherwise lazy-registered with no freq, fails immediately)
+    msgs = [
+      ("WHEEL_SPEEDS", 100),
+      ("MDPS", 100),
+      ("TCS", 50),
+      ("GEAR_SHIFTER", 100),
+      ("DOORS_SEATBELTS", 4),
+      ("BLINKERS", 50),
+    ]
+    if CP.flags & HyundaiFlags.HYBRID:
+      msgs.append(("ACCELERATOR_ALT", 100))
+    if CP.flags & HyundaiFlags.CANFD_ANGLE_STEERING:
+      msgs.append(("HOD_FD_01_100ms", 10))
     if not (CP.flags & HyundaiFlags.CANFD_ALT_BUTTONS):
       # LX3 transmits CRUISE_BUTTONS at <1Hz (gaps >1s); skip freq check for that car.
       # carstate still reads buttons via cruise_btns_msg_canfd = "CRUISE_BUTTONS".
