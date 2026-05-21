@@ -228,7 +228,8 @@ class CarInterface(CarInterfaceBase):
       if 0x53E in fingerprint[2]:
         ret.flags |= HyundaiFlagsSP.HAS_LKAS12.value
 
-    ret.intelligentCruiseButtonManagementAvailable = not (stock_cp.flags & HyundaiFlags.CANFD_ALT_BUTTONS)
+    # alt-button CAN-FD cars supported via CRUISE_BUTTONS_ALT (create_buttons_alt)
+    ret.intelligentCruiseButtonManagementAvailable = True
 
     return ret
 

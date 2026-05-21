@@ -113,6 +113,20 @@ def create_buttons(packer, CP, CAN, cnt, btn):
   return packer.make_can_msg("CRUISE_BUTTONS", bus, values)
 
 
+def create_buttons_alt(packer, CP, CAN, cnt, btn):
+  # CRUISE_BUTTONS_ALT (0x1aa) for alt-button CAN-FD cars.
+  # CHECKSUM auto-computed by packer. CRUISE_BUTTONS uses standard
+  # Buttons enum (RES_ACCEL=1, SET_DECEL=2), confirmed via rlog.
+  values = {
+    "COUNTER": cnt,
+    "SET_ME_1": 1,
+    "CRUISE_BUTTONS": btn,
+  }
+
+  bus = CAN.ECAN if CP.flags & HyundaiFlags.CANFD_LKA_STEER_MSG else CAN.CAM
+  return packer.make_can_msg("CRUISE_BUTTONS_ALT", bus, values)
+
+
 def create_acc_cancel(packer, CP, CAN, cruise_info_copy):
   # CAN FD camera-based SCC requires additional signals to be preserved
   # verbatim from the previous SCC_CONTROL frame to avoid checksum or
