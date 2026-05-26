@@ -398,6 +398,14 @@ class CAR(Platforms):
     CarSpecs(mass=2175, wheelbase=2.97, steerRatio=13.72),
     flags=HyundaiFlags.CANFD_ANGLE_STEERING | HyundaiFlags.CCNC,
   )
+  HYUNDAI_PALISADE_HEV_LX3_HDA1 = HyundaiCanFDPlatformConfig(
+    [
+      HyundaiCarDocs("Hyundai Palisade Hybrid Calligraphy (HDA1, no LFA2) 2026", "Highway Driving Assist",
+                     car_parts=CarParts.common([CarHarness.hyundai_l])),
+    ],
+    CarSpecs(mass=2175, wheelbase=2.97, steerRatio=13.72),
+    flags=HyundaiFlags.CANFD_ANGLE_STEERING,
+  )
   HYUNDAI_SONATA = HyundaiPlatformConfig(
     [HyundaiCarDocs("Hyundai Sonata 2020-23", "All", video="https://www.youtube.com/watch?v=ix63r9kE3Fw",
                    car_parts=CarParts.common([CarHarness.hyundai_a]))],

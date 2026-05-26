@@ -498,11 +498,17 @@ FW_VERSIONS = {
   },
   CAR.HYUNDAI_PALISADE_HEV_LX3: {
     (Ecu.fwdCamera, 0x7c4, None): [
-      b'\xf1\x00LX31.001.001.002591000HKP_LX325_50919099211P9030',
       b'\xf1\x00LX31.001.011.002551000HKP_LX325_50430099211P9020',
     ],
     (Ecu.fwdRadar, 0x7d0, None): [
       b'\xf1\x00LX3__               1.00 1.00 99110P9010          ',
+    ],
+  },
+  CAR.HYUNDAI_PALISADE_HEV_LX3_HDA1: {
+    (Ecu.fwdCamera, 0x7c4, None): [
+      b'\xf1\x00LX31.001.001.002591000HKP_LX325_50919099211P9030',
+    ],
+    (Ecu.fwdRadar, 0x7d0, None): [
       b'\xf1\x00LX3__               1.00 1.00 99110P9210          ',
     ],
   },
