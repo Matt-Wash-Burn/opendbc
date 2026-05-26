@@ -374,6 +374,9 @@ class CarState(CarStateBase, EsccCarStateBase, MadsCarState, CarStateExt):
       ]
     if CP.flags & HyundaiFlags.CANFD_CAMERA_SCC:
       cam_msgs.append(("SCC_CONTROL", 50))
+    elif CP.carFingerprint in (CAR.HYUNDAI_PALISADE_HEV_LX3, CAR.HYUNDAI_PALISADE_HEV_LX3_HDA1):
+      # LX3: stock SCC sent by radar on PT bus (0x1a0). Pre-register so cp.vl[] reads don't time out.
+      msgs.append(("SCC_CONTROL", 50))
 
     pt_parser = CANParser(DBC[CP.carFingerprint][Bus.pt], msgs, CanBus(CP).ECAN)
     cam_parser = CANParser(DBC[CP.carFingerprint][Bus.pt], cam_msgs, CanBus(CP).CAM)
