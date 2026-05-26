@@ -401,7 +401,7 @@ class CAR(Platforms):
   HYUNDAI_PALISADE_HEV_LX3_HDA1 = HyundaiCanFDPlatformConfig(
     [
       HyundaiCarDocs("Hyundai Palisade Hybrid Calligraphy (HDA1, no LFA2) 2026", "Highway Driving Assist",
-                     car_parts=CarParts.common([CarHarness.hyundai_l])),
+                     car_parts=CarParts.common([CarHarness.hyundai_n])),
     ],
     CarSpecs(mass=2175, wheelbase=2.97, steerRatio=13.72),
     flags=HyundaiFlags.CANFD_ANGLE_STEERING,
