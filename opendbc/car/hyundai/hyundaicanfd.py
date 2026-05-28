@@ -103,10 +103,17 @@ def create_suppress_lfa(packer, CAN, lfa_block_msg, lka_steering_alt):
 
 
 def create_buttons(packer, CP, CAN, cnt, btn):
+  # Constant fields must match the car's real CRUISE_BUTTONS_ALT frame exactly or the
+  # ECU mis-validates and misreads the button (caused set-speed runaway). Verified from
+  # real idle: DISTANCE_UNIT=1 (byte3=0x40), SET_ME_2=7 (byte5=0x70), BYTE9-11=0x80/0x87/0x07.
   values = {
     "COUNTER": cnt,
-    "SET_ME_1": 1,
+    "DISTANCE_UNIT": 1,
+    "SET_ME_2": 7,
     "CRUISE_BUTTONS": btn,
+    "BYTE9": 0x80,
+    "BYTE10": 0x87,
+    "BYTE11": 0x07,
   }
 
   bus = CAN.ECAN if CP.flags & HyundaiFlags.CANFD_LKA_STEER_MSG else CAN.CAM
@@ -117,10 +124,17 @@ def create_buttons_alt(packer, CP, CAN, cnt, btn):
   # CRUISE_BUTTONS_ALT (0x1aa) for alt-button CAN-FD cars.
   # CHECKSUM auto-computed by packer. CRUISE_BUTTONS uses standard
   # Buttons enum (RES_ACCEL=1, SET_DECEL=2), confirmed via rlog.
+  # Constant fields must match the car's real CRUISE_BUTTONS_ALT frame exactly or the
+  # ECU mis-validates and misreads the button (caused set-speed runaway). Verified from
+  # real idle: DISTANCE_UNIT=1 (byte3=0x40), SET_ME_2=7 (byte5=0x70), BYTE9-11=0x80/0x87/0x07.
   values = {
     "COUNTER": cnt,
-    "SET_ME_1": 1,
+    "DISTANCE_UNIT": 1,
+    "SET_ME_2": 7,
     "CRUISE_BUTTONS": btn,
+    "BYTE9": 0x80,
+    "BYTE10": 0x87,
+    "BYTE11": 0x07,
   }
 
   bus = CAN.ECAN if CP.flags & HyundaiFlags.CANFD_LKA_STEER_MSG else CAN.CAM
