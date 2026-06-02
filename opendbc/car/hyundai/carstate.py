@@ -58,7 +58,8 @@ class CarState(CarStateBase, EsccCarStateBase, MadsCarState, CarStateExt):
     self.accelerator_msg_canfd = "ACCELERATOR" if CP.flags & HyundaiFlags.EV else \
                                  "ACCELERATOR_ALT" if CP.flags & HyundaiFlags.HYBRID else \
                                  "ACCELERATOR_BRAKE_ALT"
-    self.cruise_btns_msg_canfd = "CRUISE_BUTTONS_ALT" if CP.flags & HyundaiFlags.CANFD_ALT_BUTTONS else \
+    self.cruise_btns_msg_canfd = "CRUISE_BUTTONS_ALT_0X10B" if CP.carFingerprint == CAR.HYUNDAI_PALISADE_HEV_LX3 else \
+                                 "CRUISE_BUTTONS_ALT" if CP.flags & HyundaiFlags.CANFD_ALT_BUTTONS else \
                                  "CRUISE_BUTTONS"
     self.is_metric = False
     self.buttons_counter = 0
@@ -363,6 +364,9 @@ class CarState(CarStateBase, EsccCarStateBase, MadsCarState, CarStateExt):
     if not (CP.flags & HyundaiFlags.CANFD_ALT_BUTTONS):
       if CP.carFingerprint != CAR.HYUNDAI_PALISADE_HEV_LX3:
         msgs += [("CRUISE_BUTTONS", 1)]
+    # LX3: real cruise-button message (0x10b). 0x1aa stays for DISTANCE_UNIT/is_metric.
+    if CP.carFingerprint == CAR.HYUNDAI_PALISADE_HEV_LX3:
+      msgs += [("CRUISE_BUTTONS_ALT_0X10B", 50)]
 
     # cam_parser: also pre-register messages read via cp_cam.vl[]
     cam_msgs = []
@@ -384,6 +388,7 @@ class CarState(CarStateBase, EsccCarStateBase, MadsCarState, CarStateExt):
       if CP.flags & HyundaiFlags.HYBRID:
         pt_parser.message_states[0x105].ignore_counter = True
       pt_parser.message_states[0x130].ignore_counter = True
+      pt_parser.message_states[0x10b].ignore_counter = True  # 0x10b cruise buttons: step-2 counter
 
     return {
       Bus.pt: pt_parser,
