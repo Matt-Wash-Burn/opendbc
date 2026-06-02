@@ -16,6 +16,9 @@ ButtonType = structs.CarState.ButtonEvent.Type
 SendButtonState = structs.IntelligentCruiseButtonManagement.SendButtonState
 
 BUTTON_COPIES = 2
+ALT_BTN_PERIOD = 0.2   # s between injected presses
+ALT_BTN_PRESS = 12     # pressed frames/burst (dominate stock btn=0 stream)
+ALT_BTN_RELEASE = 6    # release frames (falling edge)
 BUTTON_COPIES_TIME = 7
 BUTTON_COPIES_TIME_IMPERIAL = [BUTTON_COPIES_TIME + 3, 70]
 BUTTON_COPIES_TIME_METRIC = [BUTTON_COPIES_TIME, 40]
@@ -47,8 +50,18 @@ class IntelligentCruiseButtonManagementInterface(IntelligentCruiseButtonManageme
   def create_canfd_mock_button_messages(self, packer, CS, CAN, send_button) -> list[CanData]:
     can_sends = []
     if self.CP.flags & HyundaiFlags.CANFD_ALT_BUTTONS:
-      # TODO: resume for alt button cars
-      pass
+      copy = getattr(CS, "cruise_btns_alt_copy", None)
+      if copy and (self.frame - self.last_button_frame) * DT_CTRL > ALT_BTN_PERIOD:
+        self.button_frame += 1
+        base, n = CS.buttons_counter, 0
+        for _ in range(ALT_BTN_PRESS):
+          n += 1
+          can_sends.append(hyundaicanfd.create_buttons_alt_0x10b(packer, self.CP, CAN, copy, (base + 2 * n) % 0x100, send_button))
+        for _ in range(ALT_BTN_RELEASE):
+          n += 1
+          can_sends.append(hyundaicanfd.create_buttons_alt_0x10b(packer, self.CP, CAN, copy, (base + 2 * n) % 0x100, 0))
+        self.last_button_frame = self.frame
+        cloudlog.warning(f"ICBM_0x10b base=0x{base:02x} btn={send_button} bf={self.button_frame}")
     else:
       if (self.frame - self.last_button_frame) * DT_CTRL > 0.2:
         self.button_frame += 1

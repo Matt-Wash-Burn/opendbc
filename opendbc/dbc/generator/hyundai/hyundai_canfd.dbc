@@ -428,16 +428,7 @@ BO_ 426 CRUISE_BUTTONS_ALT: 16 XXX
  SG_ NEW_SIGNAL_5 : 42|2@1+ (1,0) [0|3] "" XXX
  SG_ SET_ME_2 : 44|3@1+ (1,0) [0|7] "" XXX
  SG_ NEW_SIGNAL_6 : 47|1@1+ (1,0) [0|1] "" XXX
- SG_ BYTE6 : 48|8@1+ (1,0) [0|255] "" XXX
- SG_ BYTE7 : 56|8@1+ (1,0) [0|255] "" XXX
- SG_ BYTE8 : 64|8@1+ (1,0) [0|255] "" XXX
- SG_ BYTE9 : 72|8@1+ (1,0) [0|255] "" XXX
  SG_ BYTE10 : 80|8@1+ (1,0) [0|255] "" XXX
- SG_ BYTE11 : 88|8@1+ (1,0) [0|255] "" XXX
- SG_ BYTE12 : 96|8@1+ (1,0) [0|255] "" XXX
- SG_ BYTE13 : 104|8@1+ (1,0) [0|255] "" XXX
- SG_ BYTE14 : 112|8@1+ (1,0) [0|255] "" XXX
- SG_ BYTE15 : 120|8@1+ (1,0) [0|255] "" XXX
 
 BO_ 437 FR_CMR_03_50ms: 32 FR_CMR
  SG_ FR_CMR_Crc3Val : 0|16@1+ (1,0) [0|65535] "" RR_C_RDR,CGW
@@ -657,22 +648,11 @@ BO_ 837 ADRV_0x345: 8 ADRV
 BO_ 866 CAM_0x362: 32 CAMERA
  SG_ CHECKSUM : 0|16@1+ (1,0) [0|65535] "" XXX
  SG_ COUNTER : 16|8@1+ (1,0) [0|255] "" XXX
- SG_ BYTE3 : 24|8@1+ (1,0) [0|255] "" XXX
- SG_ BYTE4 : 32|8@1+ (1,0) [0|255] "" XXX
- SG_ BYTE5 : 40|8@1+ (1,0) [0|255] "" XXX
- SG_ BYTE6 : 48|8@1+ (1,0) [0|255] "" XXX
  SG_ LEFT_LANE_LINE : 56|2@1+ (1,0) [0|3] "" XXX
  SG_ SET_ME_0 : 58|2@1+ (1,0) [0|3] "" XXX
  SG_ RIGHT_LANE_LINE : 60|2@1+ (1,0) [0|3] "" XXX
  SG_ SET_ME_0_2 : 62|2@1+ (1,0) [0|3] "" XXX
- SG_ BYTE8 : 64|8@1+ (1,0) [0|255] "" XXX
- SG_ BYTE9 : 72|8@1+ (1,0) [0|255] "" XXX
  SG_ BYTE10 : 80|8@1+ (1,0) [0|255] "" XXX
- SG_ BYTE11 : 88|8@1+ (1,0) [0|255] "" XXX
- SG_ BYTE12 : 96|8@1+ (1,0) [0|255] "" XXX
- SG_ BYTE13 : 104|8@1+ (1,0) [0|255] "" XXX
- SG_ BYTE14 : 112|8@1+ (1,0) [0|255] "" XXX
- SG_ BYTE15 : 120|8@1+ (1,0) [0|255] "" XXX
  SG_ BYTE16 : 128|8@1+ (1,0) [0|255] "" XXX
  SG_ BYTE17 : 136|8@1+ (1,0) [0|255] "" XXX
  SG_ BYTE18 : 144|8@1+ (1,0) [0|255] "" XXX
@@ -1202,3 +1182,17 @@ BO_ 267 CRUISE_BUTTONS_ALT_0X10B: 16 XXX
  SG_ CRUISE_BUTTONS : 80|3@1+ (1,0) [0|7] "" XXX
  SG_ ADAPTIVE_CRUISE_MAIN_BTN : 85|1@1+ (1,0) [0|1] "" XXX
  SG_ LDA_BTN : 87|1@1+ (1,0) [0|1] "" XXX
+ SG_ BYTE3 : 24|8@1+ (1,0) [0|255] "" XXX
+ SG_ BYTE4 : 32|8@1+ (1,0) [0|255] "" XXX
+ SG_ BYTE5 : 40|8@1+ (1,0) [0|255] "" XXX
+ SG_ BYTE6 : 48|8@1+ (1,0) [0|255] "" XXX
+ SG_ BYTE7 : 56|8@1+ (1,0) [0|255] "" XXX
+ SG_ BYTE8 : 64|8@1+ (1,0) [0|255] "" XXX
+ SG_ BYTE9 : 72|8@1+ (1,0) [0|255] "" XXX
+ SG_ B10_RSVD_3_4 : 83|2@1+ (1,0) [0|3] "" XXX
+ SG_ B10_RSVD_6 : 86|1@1+ (1,0) [0|1] "" XXX
+ SG_ BYTE11 : 88|8@1+ (1,0) [0|255] "" XXX
+ SG_ BYTE12 : 96|8@1+ (1,0) [0|255] "" XXX
+ SG_ BYTE13 : 104|8@1+ (1,0) [0|255] "" XXX
+ SG_ BYTE14 : 112|8@1+ (1,0) [0|255] "" XXX
+ SG_ BYTE15 : 120|8@1+ (1,0) [0|255] "" XXX

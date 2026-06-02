@@ -5,6 +5,7 @@
 
 #define HYUNDAI_CANFD_CRUISE_BUTTON_TX_MSGS(bus) \
   {0x1CF, bus, 8, .check_relay = false},  /* CRUISE_BUTTON */   \
+  {0x10B, bus, 16, .check_relay = false},  /* CRUISE_BUTTONS_ALT_0X10B (LX3) */ \
 
 #define HYUNDAI_CANFD_LKA_STEER_MSG_COMMON_TX_MSGS(a_can, e_can) \
   HYUNDAI_CANFD_CRUISE_BUTTON_TX_MSGS(e_can)                        \
@@ -257,6 +258,18 @@ static bool hyundai_canfd_tx_hook(const CANPacket_t *msg) {
   }
 
   // cruise buttons check
+  // cruise buttons check -- LX3 alt buttons on 0x10b (CRUISE_BUTTONS at byte10 bits 0-2)
+  if (msg->addr == 0x10BU) {
+    int button = msg->data[10] & 0x7U;
+    bool is_cancel = (button == HYUNDAI_BTN_CANCEL);
+    bool is_resume = (button == HYUNDAI_BTN_RESUME);
+    bool is_set = (button == HYUNDAI_BTN_SET);
+    bool allowed = (is_cancel && cruise_engaged_prev) || ((is_resume || is_set) && controls_allowed);
+    if (!allowed) {
+      tx = false;
+    }
+  }
+
   if (msg->addr == 0x1cfU) {
     int button = msg->data[2] & 0x7U;
     bool is_cancel = (button == HYUNDAI_BTN_CANCEL);

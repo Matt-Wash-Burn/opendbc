@@ -113,6 +113,19 @@ def create_buttons(packer, CP, CAN, cnt, btn):
   return packer.make_can_msg("CRUISE_BUTTONS", bus, values)
 
 
+def create_buttons_alt_0x10b(packer, CP, CAN, copy_vals, cnt, btn):
+  # LX3/camera-SCC: real buttons live on CRUISE_BUTTONS_ALT_0X10B (0x10b), CRUISE_BUTTONS at
+  # byte10 bits 0-2. It's a continuous 16B status frame, so copy the last received frame verbatim
+  # and override only button + counter; packer recomputes the CRC16. Guarantees every constant
+  # (byte11=0x20, ...) matches the car exactly -> the 0x1aa runaway cannot recur.
+  values = dict(copy_vals)
+  values.pop("CHECKSUM", None)
+  values["COUNTER"] = cnt
+  values["CRUISE_BUTTONS"] = btn
+  bus = CAN.ECAN if (CP.flags & HyundaiFlags.CANFD_LKA_STEER_MSG) else CAN.CAM
+  return packer.make_can_msg("CRUISE_BUTTONS_ALT_0X10B", bus, values)
+
+
 def create_acc_cancel(packer, CP, CAN, cruise_info_copy):
   # CAN FD camera-based SCC requires additional signals to be preserved
   # verbatim from the previous SCC_CONTROL frame to avoid checksum or
