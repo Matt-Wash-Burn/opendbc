@@ -61,7 +61,6 @@ class IntelligentCruiseButtonManagementInterface(IntelligentCruiseButtonManageme
           n += 1
           can_sends.append(hyundaicanfd.create_buttons_alt_0x10b(packer, self.CP, CAN, copy, (base + 2 * n) % 0x100, 0))
         self.last_button_frame = self.frame
-        cloudlog.warning(f"ICBM_0x10b base=0x{base:02x} btn={send_button} bf={self.button_frame}")
     else:
       if (self.frame - self.last_button_frame) * DT_CTRL > 0.2:
         self.button_frame += 1
