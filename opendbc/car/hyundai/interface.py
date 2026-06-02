@@ -228,7 +228,10 @@ class CarInterface(CarInterfaceBase):
       if 0x53E in fingerprint[2]:
         ret.flags |= HyundaiFlagsSP.HAS_LKAS12.value
 
-    ret.intelligentCruiseButtonManagementAvailable = not (stock_cp.flags & HyundaiFlags.CANFD_ALT_BUTTONS)
+    # LX3 has a working 0x10b alt-button injection path, so ICBM is available despite
+    # CANFD_ALT_BUTTONS; other alt-button cars still gated off (no sender yet).
+    ret.intelligentCruiseButtonManagementAvailable = (candidate == CAR.HYUNDAI_PALISADE_HEV_LX3) or \
+                                                      not (stock_cp.flags & HyundaiFlags.CANFD_ALT_BUTTONS)
 
     return ret
 
