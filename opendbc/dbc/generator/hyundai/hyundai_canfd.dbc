@@ -645,6 +645,12 @@ BO_ 736 MANUAL_SPEED_LIMIT_ASSIST: 32 XXX
  SG_ MAX_SPEED : 55|8@0+ (1,0) [0|255] "" XXX
  SG_ MAX_SPEED_COPY : 144|8@1+ (1,0) [0|255] "" XXX
 
+BO_ 267 CRUISE_BUTTONS_ALT_0X10B: 16 XXX
+ SG_ ADAS_BTNS M : 81|2@0+ (1,0) [0|3] "" XXX
+ SG_ ACC_PAUSE_RES_BTN : 82|1@0+ (1,0) [0|1] "" XXX
+ SG_ ACC_BTN : 85|1@0+ (1,0) [0|1] "" XXX
+ SG_ LFA_BTN : 87|1@0+ (1,0) [0|1] "" XXX
+
 BO_ 837 ADRV_0x345: 8 ADRV
  SG_ CHECKSUM : 0|16@1+ (1,0) [0|65535] "" XXX
  SG_ COUNTER : 16|8@1+ (1,0) [0|255] "" XXX
@@ -995,6 +1001,7 @@ VAL_ 234 MDPS_TpaPlugInSta 0 "The TPA function of MDPS is not plugged in (unplug
 VAL_ 234 MDPS_TpaCanfltSta 0 "No Failure" 1 "Failure about Tpa can message" 2 "RESERVED" 3 "Error Indicator";
 VAL_ 234 MDPS_TpaModeSta 0 "RESERVED" 1 "Steering still in initialization phase" 2 "Steering ready, waits for TPA command" 3 "Steering set in standby by TPA" 4 "Steering requested to go to first activation step activation step" 5 "Steering requested to go to final activation step" 6 "Steering went to error internally" 7 "Steering aborted the automatic function" 14 "RESERVED" 15 "Error Indicator";
 VAL_ 234 MDPS_TpaStrAnglVal 0 "0 (0x000~0x7FFD valid range)" 32765 "32765 (0x000~0x7FFD valid range)" 32766 "Not Initialized" 32767 "Error Indicator" 32768 "32768 (0x8000~0xFFFF valid range)" 65535 "65535 (0x8000~0xFFFF valid range)";
+VAL_ 267 ADAS_BTNS 1 "RES_INC_SPEED_BTN" 2 "SET_DEC_SPEED_BTN" 3 "FOLLOW_DIST_BTN";
 VAL_ 272 LKA_OptUsmSta 0 "None LKA/LDW Option (Default)" 1 "LDW" 2 "LKA" 3 "Reserved" 4 "LDW Only (None LKA)" 5 "LDW only OFF (None LKA)" 6 "LDW/LKA OFF" 7 "Invalid";
 VAL_ 272 LKA_RcgSta 0 "Not Recognized" 1 "Left Lane Recognition" 2 "Right Lane Recognition" 3 "Full Lane Recognition" 4 "Reserved" 5 "Reserved" 6 "Reserved" 7 "Reserved";
 VAL_ 272 LKA_LHLnWrnSta 0 "No Warning" 1 "Lane Departure Warning" 2 "Reserved" 3 "Reserved";

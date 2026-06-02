@@ -147,6 +147,9 @@ class HyundaiFlags(IntFlag):
 
   ALT_LIMITS_2 = 2 ** 26
 
+  # Cruise/main/LDA button messages live on ACAN instead of the usual ECAN CRUISE_BUTTONS message
+  CANFD_ALT_BUTTONS_ACAN = 2 ** 27
+
 
 @dataclass
 class HyundaiCarDocs(CarDocs):
@@ -343,6 +346,11 @@ class CAR(Platforms):
     ],
     CarSpecs(mass=1999, wheelbase=2.9, steerRatio=15.6 * 1.15, tireStiffnessFactor=0.63),
     flags=HyundaiFlags.MANDO_RADAR | HyundaiFlags.CHECKSUM_CRC8,
+  )
+  HYUNDAI_PALISADE_HEV = HyundaiCanFDPlatformConfig(
+    [HyundaiCarDocs("Hyundai Palisade Hybrid 2026", "All", car_parts=CarParts.common([CarHarness.hyundai_n]))],
+    CarSpecs(mass=2165, wheelbase=2.97, steerRatio=15.0 * 1.15, tireStiffnessFactor=0.63),
+    flags=HyundaiFlags.CANFD_ALT_BUTTONS_ACAN,
   )
   HYUNDAI_VELOSTER = HyundaiPlatformConfig(
     [HyundaiCarDocs("Hyundai Veloster 2019-20", min_enable_speed=5. * CV.MPH_TO_MS, car_parts=CarParts.common([CarHarness.hyundai_e]))],
@@ -707,7 +715,8 @@ HYUNDAI_VERSION_RESPONSE = bytes([uds.SERVICE_TYPE.READ_DATA_BY_IDENTIFIER + 0x4
 PLATFORM_CODE_FW_PATTERN = re.compile(b'((?<=' + HYUNDAI_VERSION_REQUEST_LONG[1:] +
                                       b')[A-Z]{2}[A-Za-z0-9]{0,2})')
 DATE_FW_PATTERN = re.compile(b'(?<=[ -])([0-9]{6}$)')
-PART_NUMBER_FW_PATTERN = re.compile(b'(?<=[0-9][.,][0-9]{2} )([0-9]{5}[-/]?[A-Z][A-Z0-9]{3}[0-9])')
+PART_NUMBER_FW_PATTERN = re.compile(b'(?:(?<=[0-9][.,][0-9]{2} )([0-9]{5}[-/]?[A-Z][A-Z0-9]{3}[0-9])'
+                                    b'|([0-9]{5}[-/]?[A-Z][A-Z0-9]{3}[0-9])$)')
 
 # We've seen both ICE and hybrid for these platforms, and they have hybrid descriptors (e.g. MQ4 vs MQ4H)
 CANFD_FUZZY_WHITELIST = {CAR.KIA_SORENTO_4TH_GEN, CAR.KIA_SORENTO_HEV_4TH_GEN, CAR.KIA_K8_HEV_1ST_GEN,
