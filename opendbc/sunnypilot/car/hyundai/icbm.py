@@ -16,9 +16,8 @@ ButtonType = structs.CarState.ButtonEvent.Type
 SendButtonState = structs.IntelligentCruiseButtonManagement.SendButtonState
 
 BUTTON_COPIES = 2
-ALT_BTN_PERIOD = 0.2   # s between injected presses
-ALT_BTN_PRESS = 12     # pressed frames/burst (dominate stock btn=0 stream)
-ALT_BTN_RELEASE = 6    # release frames (falling edge)
+ALT_BTN_PERIOD = 0.04   # s between injected frames (~25Hz, one per stock 0x10b frame)
+ALT_BTN_COPIES = 4      # copies per injection at a single counter slot (redundancy, no racing)
 BUTTON_COPIES_TIME = 7
 BUTTON_COPIES_TIME_IMPERIAL = [BUTTON_COPIES_TIME + 3, 70]
 BUTTON_COPIES_TIME_METRIC = [BUTTON_COPIES_TIME, 40]
@@ -52,14 +51,30 @@ class IntelligentCruiseButtonManagementInterface(IntelligentCruiseButtonManageme
     if self.CP.flags & HyundaiFlags.CANFD_ALT_BUTTONS:
       copy = getattr(CS, "cruise_btns_alt_copy", None)
       if copy and (self.frame - self.last_button_frame) * DT_CTRL > ALT_BTN_PERIOD:
-        self.button_frame += 1
-        base, n = CS.buttons_counter, 0
-        for _ in range(ALT_BTN_PRESS):
-          n += 1
-          can_sends.append(hyundaicanfd.create_buttons_alt_0x10b(packer, self.CP, CAN, copy, (base + 2 * n) % 0x100, send_button))
-        for _ in range(ALT_BTN_RELEASE):
-          n += 1
-          can_sends.append(hyundaicanfd.create_buttons_alt_0x10b(packer, self.CP, CAN, copy, (base + 2 * n) % 0x100, 0))
+        # Mimic a real driver button press. A real press is a *sustained*, monotonic,
+        # even-counter stream of btn!=0 frames on 0x10b for the entire press duration
+        # (verified in rlog: a manual RES+ held btn=1 across ~1.25s of frames, counter
+        # +2 each, and moved the camera's set speed cleanly).
+        #
+        # The previous implementation burst 12 "press" + 6 "release" frames every 0.2s,
+        # each with its own counter (base + 2n). That failed for three compounding
+        # reasons (confirmed in rlog 000000e0--22c9c6ecc0: SET- requested for 2.6s
+        # straight, camera VSetDis never changed):
+        #   1. it self-released inside every burst, so the "press" only existed for ~5ms
+        #      of counter-time -- below the camera's button debounce;
+        #   2. it raced the counter ~36 counts ahead of the live, still-forwarded stock
+        #      0x10b stream, so when the real stream caught up the camera saw a counter
+        #      regression and rejected it;
+        #   3. the 0.2s gap meant btn!=0 was present <20% of the time.
+        #
+        # Instead hold the button continuously at the next counter slot of the live stock
+        # stream, paced one injection per stock frame. Press *duration* is driven by the
+        # ICBM state machine (it holds send_button until v_cruise matches); release is
+        # implicit -- once send_button returns to none we stop injecting and the stock
+        # btn=0 stream provides the falling edge.
+        cnt = (CS.buttons_counter + 2) % 0x100
+        for _ in range(ALT_BTN_COPIES):
+          can_sends.append(hyundaicanfd.create_buttons_alt_0x10b(packer, self.CP, CAN, copy, cnt, send_button))
         self.last_button_frame = self.frame
     else:
       if (self.frame - self.last_button_frame) * DT_CTRL > 0.2:

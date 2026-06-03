@@ -264,7 +264,13 @@ static bool hyundai_canfd_tx_hook(const CANPacket_t *msg) {
     bool is_cancel = (button == HYUNDAI_BTN_CANCEL);
     bool is_resume = (button == HYUNDAI_BTN_RESUME);
     bool is_set = (button == HYUNDAI_BTN_SET);
-    bool allowed = (is_cancel && cruise_engaged_prev) || ((is_resume || is_set) && controls_allowed);
+    // ICBM/SCC-V nudges the stock ACC set-speed via 0x10b SET-/RES+ injection while only MADS
+    // lateral is engaged (openpilot is NOT doing longitudinal, so the longitudinal `controls_allowed`
+    // is never set on this camera-SCC config). Gating purely on `controls_allowed` blocked 100% of
+    // injections (rlog 000000e1: every SET-/RES+ TX-blocked, camera VSetDis never moved). Allow
+    // set/resume when MADS lateral is active too -- same precedent as honda.h. Cancel still requires
+    // the stock cruise to be engaged.
+    bool allowed = (is_cancel && cruise_engaged_prev) || ((is_resume || is_set) && (controls_allowed || controls_allowed_lateral));
     if (!allowed) {
       tx = false;
     }
