@@ -553,7 +553,7 @@ class IsoTpMessage:
       return ISOTP_FRAME_TYPE.CONSECUTIVE
 
     elif rx_data[0] >> 4 == ISOTP_FRAME_TYPE.FLOW:
-          if self.tx_done:
+      if self.tx_done:
         return ISOTP_FRAME_TYPE.FLOW  # ignore stray FC frame
       assert not self.tx_done, "isotp - rx: flow control with no active frame"
       assert rx_data[0] != 0x32, "isotp - rx: flow-control overflow/abort"
