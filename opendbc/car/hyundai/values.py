@@ -388,8 +388,16 @@ class CAR(Platforms):
                      car_parts=CarParts.common([CarHarness.hyundai_l])),
     ],
     CarSpecs(mass=2035, wheelbase=2.81, steerRatio=13.72),
-     flags=HyundaiFlags.CANFD_ANGLE_STEERING,
-   )
+    flags=HyundaiFlags.CANFD_ANGLE_STEERING,
+  )
+  HYUNDAI_PALISADE_HEV_LX3 = HyundaiCanFDPlatformConfig(
+    [
+      HyundaiCarDocs("Hyundai Palisade Hybrid (without HDA II, LFA2) 2026", "Lane Follow Assist 2",
+                     car_parts=CarParts.common([CarHarness.hyundai_l])),
+    ],
+    CarSpecs(mass=2175, wheelbase=2.97, steerRatio=13.72),
+    flags=HyundaiFlags.CANFD_ANGLE_STEERING,
+  )
 
   HYUNDAI_SONATA = HyundaiPlatformConfig(
     [HyundaiCarDocs("Hyundai Sonata 2020-23", "All", video="https://www.youtube.com/watch?v=ix63r9kE3Fw",
