@@ -503,6 +503,7 @@ FW_VERSIONS = {
     ],
     (Ecu.fwdRadar, 0x7d0, None): [
       b'\xf1\x00LX3__               1.00 1.00 99110P9010          ',
+      b'\xf1\x00LX3__               1.00 1.00 99110P9210          ',
     ],
   },
   CAR.HYUNDAI_VELOSTER: {
