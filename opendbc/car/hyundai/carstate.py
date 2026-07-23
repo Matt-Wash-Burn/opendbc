@@ -361,6 +361,11 @@ class CarState(CarStateBase, EsccCarStateBase, MadsCarState, CarStateExt):
     if CP.flags & HyundaiFlags.HYBRID:
       msgs.append(("ACCELERATOR_ALT", 100))
     msgs.append(("GEAR_SHIFTER", 50))
+    if CP.carFingerprint == CAR.HYUNDAI_PALISADE_HEV_LX3_HDA2:
+      msgs += [
+        ("SCC_CONTROL", 50),
+        ("FR_CMR_02_100ms", 10),
+      ]
     if not (CP.flags & HyundaiFlags.CANFD_ALT_BUTTONS):
       if CP.carFingerprint not in LX3_CARS:
         msgs += [("CRUISE_BUTTONS", 1)]
