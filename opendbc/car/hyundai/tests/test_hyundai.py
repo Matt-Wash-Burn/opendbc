@@ -60,6 +60,14 @@ class TestHyundaiFingerprint(unittest.TestCase):
       CP = CarInterface.get_params(CAR.KIA_EV6, fingerprint, [], False, False, False)
       assert bool(CP.flags & HyundaiFlags.CANFD_LKA_STEER_MSG) == lka_steering
 
+    # LX3 HDA2 uses alternate buttons with LKA steering.
+    fingerprint = gen_empty_fingerprint()
+    fingerprint[CanBus(None, fingerprint).CAM] = {0x110: 32}
+    fingerprint[1] = {0x1AA: 16}
+    CP = CarInterface.get_params(CAR.HYUNDAI_PALISADE_HEV_LX3_HDA2, fingerprint, [], False, False, False)
+    assert CP.flags & HyundaiFlags.CANFD_LKA_STEER_MSG
+    assert CP.flags & HyundaiFlags.CANFD_ALT_BUTTONS
+
     # radar available
     for radar in (True, False):
       fingerprint = gen_empty_fingerprint()

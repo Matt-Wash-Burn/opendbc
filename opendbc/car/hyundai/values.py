@@ -404,7 +404,7 @@ class CAR(Platforms):
                      car_parts=CarParts.common([CarHarness.hyundai_n])),
     ],
     HYUNDAI_PALISADE_HEV_LX3.specs,
-    flags=HyundaiFlags.CANFD_ANGLE_STEERING | HyundaiFlags.CCNC,
+    flags=HyundaiFlags.CANFD_ANGLE_STEERING | HyundaiFlags.CANFD_ALT_BUTTONS | HyundaiFlags.CCNC,
   )
   HYUNDAI_SONATA = HyundaiPlatformConfig(
     [HyundaiCarDocs("Hyundai Sonata 2020-23", "All", video="https://www.youtube.com/watch?v=ix63r9kE3Fw",
