@@ -504,6 +504,14 @@ FW_VERSIONS = {
       b'\xf1\x00LX3__               1.00 1.00 99110P9010          ',
     ],
   },
+  CAR.HYUNDAI_PALISADE_HEV_LX3_HDA2: {
+    (Ecu.fwdCamera, 0x7c4, None): [
+      b'\xf1\x00LX31.001.001.002591000HKP_LX325_50919099211P9030',
+    ],
+    (Ecu.fwdRadar, 0x7d0, None): [
+      b'\xf1\x00LX3__               1.00 1.00 99110P9210          ',
+    ],
+  },
   CAR.HYUNDAI_VELOSTER: {
     (Ecu.fwdRadar, 0x7d0, None): [
       b'\xf1\x00JS__ SCC H-CUP      1.00 1.02 95650-J3200         ',
