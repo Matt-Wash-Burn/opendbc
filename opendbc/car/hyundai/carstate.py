@@ -367,7 +367,7 @@ class CarState(CarStateBase, EsccCarStateBase, MadsCarState, CarStateExt):
 
     # cam_parser: also pre-register messages read via cp_cam.vl[]
     cam_msgs = []
-    if CP.flags & HyundaiFlags.CCNC:
+    if CP.flags & HyundaiFlags.CCNC and not CP.flags & HyundaiFlags.CANFD_LKA_STEER_MSG:
       cam_msgs += [
         ("CCNC_0x161", 20),
         ("CCNC_0x162", 20),
